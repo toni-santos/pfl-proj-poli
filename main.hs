@@ -10,10 +10,6 @@ delim (x:xs, res, c)  a | x == ' ' || x == '\n' || x == '(' || x == ')' = delim 
                         | x `elem` a = delim (xs, res ++ [c], "") a
                         | otherwise = delim (xs, res, c ++ [x]) a
 
-
-intify :: String -> [Int]
-intify str = map read $ words str :: [Int]
-
 findMonomCoef :: String -> Int
 findMonomCoef str =  if str == "-" then -1 else read (takeWhile (\x -> isDigit x || x == '-') str)
 
