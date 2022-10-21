@@ -1,8 +1,6 @@
 import Data.List
 import Data.Char
 import Data.String
-import GHC.Generics
-import Data.Bifunctor
 import Data.Function
 import Data.Ord
 
@@ -12,13 +10,18 @@ type Coef = Int
 type Lit = (Var, Exp)
 type Lits = [Lit]
 
--- UNCOMMENT FOR DEBUG SHOW -- 
--- data Monomial = Monomial Coef Lits deriving (Show)
+class Derive x where
+  (\/) :: x -> Var -> x
+
 data Monomial = Monomial Coef Lits
 
--- UNCOMMENT FOR DEBUG SHOW -- 
--- newtype Polynomial = Polynomial [Monomial] deriving (Eq, Show)
 newtype Polynomial = Polynomial [Monomial] deriving (Eq)
+
+instance Derive Monomial where
+  (\/) m v = deriveMonom m v
+
+instance Derive Polynomial where
+  (\/) m v = derivePoli m v
 
 instance Read Monomial where
   readsPrec _ s = [(parseStrMonom s, "")]
@@ -27,10 +30,10 @@ instance Read Polynomial where
   readsPrec _ s = [(parseStrPolis s, "")]
 
 instance Show Monomial where
-  show = showMonom
+  show s = showMonom (normMonom s)
 
 instance Show Polynomial where
-  show (Polynomial s) = showPoli (map showMonom s)
+  show (Polynomial s) = showPoli (map showMonom (normPolis s))
 
 instance Eq Monomial where
   (==) (Monomial c l) (Monomial c2 l2) = l == l2
@@ -63,7 +66,7 @@ splitByList (x:xs, res, c)  a | x == ' ' || x == '\n' || x == '(' || x == ')' = 
 
 findMonomCoef :: String -> Coef
 findMonomCoef str | takeWhile (\x -> isDigit x || x == '-') str == "" = 1
-                  | str == "-" = -1
+                  | takeWhile (\x -> isDigit x || x == '-') str == "-" = -1
                   | otherwise = read (takeWhile (\x -> isDigit x || x == '-') str)
 
 findMonomExps :: String -> [Var]
@@ -92,22 +95,27 @@ showLits [] = ""
 showLits (x:xs) | fst x == '_' = ""
                 | snd x == 0 = showLits xs
                 | snd x == 1 = fst x : showLits xs
-                | otherwise = [fst x] ++ show (snd x) ++ showLits xs
+                | otherwise = [fst x]  ++ "^" ++ show (snd x) ++ showLits xs
 
 showMonom :: Monomial -> String
 showMonom (Monomial c l) | c == 0 = ""
                          | c == 1 = showLits l
                          | c == -1 = "-" ++ showLits l
-                         | otherwise = show c ++ showLits l
+                         | notElem c [-1,0,1] && showLits l == "" = show c
+                         | otherwise = show c ++ "*" ++ showLits l
 
 showPoli :: [String] -> String
 showPoli [] = ""
 showPoli (x:xs) | null xs = x ++ showPoli xs
-                | head (head xs) == '-' = x ++ showPoli xs
-                | not (null xs) = x ++ "+" ++ showPoli xs
+                | head (head xs) == '-' = x ++ " - " ++ tail (showPoli xs)
+                | not (null xs) && x == "" = showPoli xs
+                | not (null xs) = x ++ " + " ++ showPoli xs
+
+removeUseless :: Lits -> Lits
+removeUseless l = [ (x,y) | (x,y) <- l, y /= 0]
 
 reduceLits :: Lits -> Lits
-reduceLits l = map addLits (groupBy ((==) `on` fst) (sortBy (comparing fst) l))
+reduceLits l = removeUseless (map addLits (groupBy ((==) `on` fst) (sortBy (comparing fst) l)))
 
 normMonom :: Monomial -> Monomial
 normMonom (Monomial c l) = Monomial c (reduceLits l)
@@ -133,23 +141,32 @@ calcDervCoef c l = c * product [ y | (x,y) <- l]
 calcDervLits :: Lits -> Lits
 calcDervLits l = [if y == 0 then ('_', 0) else (x,y) | (x,y) <- zip [x | (x,y) <- l] [y-1 | (x,y) <- l]]
 
-deriveMonom :: Monomial -> Monomial
-deriveMonom (Monomial c l) = Monomial (calcDervCoef c l) (calcDervLits l)
+deriveMonom :: Monomial -> Var -> Monomial
+deriveMonom (Monomial c l) v = if any (\(x,y) -> x == v) l then (Monomial (calcDervCoef c l) (calcDervLits l)) else  Monomial 0 [('_',0)]
+
+derivePoli :: Polynomial -> Var -> Polynomial
+derivePoli  (Polynomial l) v = Polynomial (map (`deriveMonom` v) l)
 
 sum' :: [[Monomial]] -> [Monomial]
-sum' xs = foldr (\ x -> (++) [sum'' x]) [] xs
+sum' = foldr (\ x -> (++) [sum'' x]) []
 
 sum'' :: [Monomial] -> Monomial
-sum'' xs = foldr (+) (Monomial 0 [('_', 0)]) xs
+sum'' = foldr1 (+)
 
 addPoly :: Polynomial -> Polynomial -> Polynomial
-addPoly (Polynomial c) (Polynomial c2) = Polynomial (sum' (group (sort (c++c2))))
+addPoly (Polynomial c) (Polynomial c2) = Polynomial (normPolis (c ++ c2))
 
 addMonom :: Monomial -> Monomial -> Monomial
 addMonom (Monomial c l) (Monomial c2 l2) = Monomial (c Prelude.+ c2) l
 
+prod' :: [[Monomial]] -> [Monomial]
+prod' = foldr (\ x -> (++) [prod'' x]) []
+
+prod'' :: [Monomial] -> Monomial
+prod'' = foldr1 (*)
+
 multiplyPoly :: Polynomial -> Polynomial -> Polynomial
-multiplyPoly (Polynomial c) (Polynomial c2) = Polynomial ([product [x, y] | x <- c, y <- c2])
+multiplyPoly (Polynomial c) (Polynomial c2) = Polynomial (prod' [[x, y] | x <- c, y <- c2])
 
 calcMultCoef :: Lits -> Lits
 calcMultCoef x = map (foldr1 (\(a,b) (c,d) -> (a, b Prelude.+ d))) (groupBy ((==) `on` fst) $ sort x)
