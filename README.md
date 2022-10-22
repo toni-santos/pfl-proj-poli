@@ -126,74 +126,99 @@ Relevant functions:
 
 These examples are suited to be run on ghci:
 
-> Testing Monomial creation
-> > Representing 2x²
+#### Testing Monomial creation
+
+> Representing 2x²
 `Monomial 2 [('x', 2)]`
-> > Representing 2x²y²
+
+> Representing 2x²y²
 `Monomial 2 [('x', 2), ('y', 2)]`
-> > Representing 2x⁴
+
+> Representing 2x⁴
 `Monomial 2 [('x', 2), ('x', 2)]`
 
-> Testing Monomial creation (from string)
-> > Representing 2x²
+#### Testing Monomial creation (from string)
+
+> Representing 2x²
 `read "2*x^2"::Monomial`
 `read "2x2"::Monomial`
-> > Representing 2x²y²
+
+> Representing 2x²y²
 `read "2*x^2*y^2"::Monomial`
 `read "2x2y2"::Monomial`
 
-> Testing Polynomial creation
-> > Representing 2x²
+#### Testing Polynomial creation
+
+> Representing 2x²
 `Polynomial [Monomial 2 [('x', 2)]]`
-> > Representing 2x² + 2x²y²
+
+> Representing 2x² + 2x²y²
 `Polynomial [Monomial 2 [('x', 2), ('y', 2)] + Monomial 2 [('x', 2)]]`
-> > Representing 4x²y² 
+
+> Representing 4x²y² 
 `Polynomial [Monomial 2 [('x', 2), ('y', 2)] + Monomial 2 [('x', 2), ('y', 2)]]`
-> > Representing 4x⁴y⁴ 
+
+> Representing 4x⁴y⁴ 
 `Polynomial [Monomial 2 [('x', 2), ('y', 2)] * Monomial 2 [('x', 2), ('y', 2)]]`
 
-> Testing Polynomial creation (from string)
-> > Representing 2x²
+#### Testing Polynomial creation (from string)
+
+> Representing 2x²
 `read "2x^2"::Polynomial`
-> > Representing 2x² + 2x²y²
+
+> Representing 2x² + 2x²y²
 `read "2x^2 + 2x2*y^2"::Polynomial`
-> > Representing 4x²y² 
+
+> Representing 4x²y² 
 `read "2x2y2 + 2x2y2"::Polynomial`
-> > Representing 4x⁴y⁴ 
+
+> Representing 4x⁴y⁴ 
 `read "2x2*y2 * 2x2y^2"::Polynomial`
 
-> Testing Monomial addition
-> > Result 2x²
+#### Testing Monomial addition
+
+> Result 2x²
 `(read "x2"::Monomial) + (read "x2"::Monomial)`
 
-> Testing Monomial multiplication
-> > Result 4x²
+#### Testing Monomial multiplication
+
+> Result 4x²
 `(read "2x2"::Monomial) * (read "2x2"::Monomial)`
 
-> Testing Monomial derivation
-> > Result 2x
+#### Testing Monomial derivation
+
+> Result 2x
 `(read "x2"::Monomial) \/ 'x'`
 
-> Testing Polynomial addition
-> > Result 2x² + 6y²
+#### Testing Polynomial addition
+
+> Result 2x² + 6y²
 `(read "x2 + 3y2"::Polynomial) + (read "x2 + 3y2"::Polynomial)`
-> > Result 4 + 2x - 4x² 
+
+> Result 4 + 2x - 4x² 
 `(read "-2x2 + x + 2"::Polynomial) + (read "-2x2 + x + 2"::Polynomial)`
-> > Result 2 + x + xy² - 2x³y² - 2y² + z
+
+> Result 2 + x + xy² - 2x³y² - 2y² + z
 `(read "-2y2 + x + 2"::Polynomial) + (read "-2x3y2 + z + xy2"::Polynomial)`
 
-> Testing Polynomial multiplication
-> > Result 6x²y² + x⁴ + 9y⁴
+#### Testing Polynomial multiplication
+
+> Result 6x²y² + x⁴ + 9y⁴
 `(read "x2 + 3y2"::Polynomial) * (read "x2 + 3y2"::Polynomial)`
-> > Result 4 + 4x - 7x² - 4x³ + 4x⁴
+
+> Result 4 + 4x - 7x² - 4x³ + 4x⁴
 `(read "-2x2 + x + 2"::Polynomial) * (read "-2x2 + x + 2"::Polynomial)`
-> > Result 2 + x + xy² - 2x³y² - 2y² + z
+
+> Result 2 + x + xy² - 2x³y² - 2y² + z
 `(read "-2y2 + x + 2"::Polynomial) * (read "-2x3y2 + z + xy2"::Polynomial)`
 
-> Testing Polynomial derivation
-> > Result 2x
+#### Testing Polynomial derivation
+
+> Result 2x
 `(read "x2 + 3y2"::Polynomial) \/ 'x'`
-> > Result "" (Nothing)
+
+> Result "" (Nothing)
 `(read "-2x2 + x + 2"::Polynomial) \/ 'y'`
-> > Result 1 - 4x²y
+
+> Result 1 - 4x²y
 `(read "-2x2y2 + -2x + y"::Polynomial) \/ 'y'`
