@@ -66,10 +66,13 @@ parseMonomLit (str, res) = parseMonomLit (
     res ++ [(
       head str,
       read (
-        if null (takeWhile (\x -> isDigit x && x /= '^' && x /= '*') (tail str)) then
+        if null (takeWhile (\x -> isDigit x || x == '^' && x /= '*') (tail str)) then
           "1"
         else
-          takeWhile (\x -> isDigit x && x /= '^' && x /= '*') (tail str)
+          if head (takeWhile (\x -> isDigit x || x == '^' && x /= '*') (tail str)) == '^' then
+            tail (takeWhile (\x -> isDigit x || x == '^' && x /= '*') (tail str))
+          else
+            takeWhile (\x -> isDigit x || x == '^' && x /= '*') (tail str)
       )
     )]
   )

@@ -47,6 +47,8 @@ Relevant functions:
 
 Addition of polynomials was implemented by mapping the addition of monomials for the list of monomials, which is exactly the definition of a polynomial. The latter is done by summing the coefficients and keeping the literals of one of the monomials, therefore this operation assumes that the monomials being summed are summable, that is, they have the same literals.
 
+> ##### IMPORTANT: Using `(read "x2"::Monomial) + (read "2x"::Monomial)` as an example, this sum will not yield the correct expected output of `"2x + x^2"` as, in our implementation, a sum of monomials must yield a monomial, and this result is clearly a polynomial of 2 factors. 
+
 With this in mind, the implementation of polynomials had to be able to figure out which monomials should be summed, meaning that our final implementation of the sum of polynomials must sort and group together the monomials to be summed and then sum the groups of monomials previously found; this process is exactly the same as the one of normalizing a polynomial, therefore a sum of polynomials is simply the normalization of the 2 polynomials.
 
 Subtraction is handled inherently by the operation of sum of monomials, since subtractions are treated the same way a sum would, `x + (-y)`, simply summing coefficients and keeping the literals.
@@ -172,8 +174,8 @@ These examples are suited to be run on ghci:
 > Representing 4x²y² 
 `read "2x2y2 + 2x2y2"::Polynomial`
 
-> Representing 4x⁴y⁴ 
-`read "2x2*y2 * 2x2y^2"::Polynomial`
+> Representing 2x⁴y⁴ 
+`read "2x2*y2 * x2y^2"::Polynomial`
 
 #### Testing Monomial addition
 
@@ -228,4 +230,4 @@ These examples are suited to be run on ghci:
 
 ### Other Information
 
-This project should be ran in GHCi and has been tested to work on GHCi Linux. Compiling on GHC may result in errors.
+This project should be ran in GHCi and has been tested to work on GHCghici Linux. Compiling on GHC may result in errors.
