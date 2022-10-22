@@ -100,7 +100,7 @@ With an initial set of monomials created and normalized, fixes on certain edge c
 Parsing a monomial works exactly the same way as a polynomial, except that in the end, as a monomial is a polynomial with exactly one element, the first element of the list is selected.
 
 This parsing algorithm and method incurs on some limitations mainly in which strings we are able to accept, the following are not supported:
-- `"2x² * 3y²"`, coefficients must always be at the beginning of the monomial and simplified, this restriction is in place as we are unable to determine the context in which `*` is being used and doing so escapes the scope of this assignment. Furthermore, in mathematics, a polynomial must not have multiplications between its monomials.
+- `"2x² * 3y²"`, coefficients must always be at the beginning of the monomial and simplified, this restriction is in place as we are unable to determine the context in which `*` is being used and doing so escapes the scope of this assignment. Furthermore, in mathematics, a polynomial must not have multiplications between its monomials. This input will therefore be interpreted as `"2x²³y²"`.
 
 We should also note that in order to extend the `read` function of the Monomial and Polynomial classes and keep their simmetry, we also implemented `show` functions that are responsible for displaying polynomials and monomials in an easy to read fashion. These take into account several cases just like the parsing functions before them.
 
@@ -190,6 +190,9 @@ These examples are suited to be run on ghci:
 > Result 2x
 `(read "x2"::Monomial) \/ 'x'`
 
+> Result 0
+`(read "x2"::Monomial) \/ 'y'`
+
 #### Testing Polynomial addition
 
 > Result 2x² + 6y²
@@ -209,7 +212,7 @@ These examples are suited to be run on ghci:
 > Result 4 + 4x - 7x² - 4x³ + 4x⁴
 `(read "-2x2 + x + 2"::Polynomial) * (read "-2x2 + x + 2"::Polynomial)`
 
-> Result 2 + x + xy² - 2x³y² - 2y² + z
+> Result 2xy² - 2xy⁴ + xz + x²y² - 4x³y² + 4x³y⁴ - 2x⁴y² - 2y²z + 2z
 `(read "-2y2 + x + 2"::Polynomial) * (read "-2x3y2 + z + xy2"::Polynomial)`
 
 #### Testing Polynomial derivation
@@ -217,7 +220,7 @@ These examples are suited to be run on ghci:
 > Result 2x
 `(read "x2 + 3y2"::Polynomial) \/ 'x'`
 
-> Result "" (Nothing)
+> Result 0
 `(read "-2x2 + x + 2"::Polynomial) \/ 'y'`
 
 > Result 1 - 4x²y

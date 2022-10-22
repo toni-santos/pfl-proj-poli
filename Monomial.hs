@@ -21,7 +21,7 @@ instance Read Monomial where
 
 -- | Show instancing for monomials
 instance Show Monomial where
-  show s = showMonom (normMonom s)
+  show s = if showMonom (normMonom s) == "" then "0" else showMonom (normMonom s)
 
 -- | Equivalence instancing for monomials
 instance Eq Monomial where

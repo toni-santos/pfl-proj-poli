@@ -23,7 +23,7 @@ instance Read Polynomial where
 
 -- | Show instancing for polynomials
 instance Show Polynomial where
-  show (Polynomial s) = showPoly (map showMonom (normPoly s))
+  show (Polynomial s) = if showPoly (map showMonom (normPoly s)) == "" then "0" else showPoly (map showMonom (normPoly s))
 
 -- | Num instancing for polynomials
 instance Num Polynomial where
