@@ -225,3 +225,7 @@ These examples are suited to be run on ghci:
 
 > Result 1 - 4x²y
 `(read "-2x2y2 + -2x + y"::Polynomial) \/ 'y'`
+
+### Other Information
+
+This project should be ran in GHCi and has been tested to work on GHCi Linux. Compiling on GHC may result in errors.
